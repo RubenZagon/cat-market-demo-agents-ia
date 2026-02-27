@@ -1,0 +1,52 @@
+{
+  "name": "taberna-del-gato-frontend",
+  "version": "1.0.0",
+  "description": "Frontend de La Taberna del Gato - sin tocar desde 2019",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --coverage --coverageReporters=text --watchAll=false",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "axios": "0.18.0",
+    "bootstrap": "3.3.7",
+    "handlebars": "4.0.11",
+    "jquery": "2.2.4",
+    "lodash": "4.17.4",
+    "marked": "0.3.6",
+    "moment": "2.19.1",
+    "node-fetch": "1.7.3",
+    "react": "16.3.2",
+    "react-dom": "16.3.2",
+    "react-scripts": "4.0.3",
+    "serialize-javascript": "1.4.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.2.7"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/components/**/*.{js,jsx}"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 70
+      }
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

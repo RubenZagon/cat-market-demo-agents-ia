@@ -1,0 +1,15 @@
+target/
+*.class
+*.jar
+*.war
+
+frontend/node_modules/
+frontend/build/
+frontend/coverage/
+
+.env
+*.log
+.DS_Store
+.idea/
+*.iml
+.vscode/
