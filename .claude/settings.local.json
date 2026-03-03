@@ -1,4 +1,8 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(java -version 2>&1 && mvn -version 2>&1 && node --version 2>&1 && npm --version 2>&1)",
@@ -11,7 +15,24 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(cd ./frontend:*)",
+      "Bash(cd:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose:*)",
+      "Bash(fd:*)",
+      "Bash(rg:*)",
+      "Bash(tree:*)",
+      "Bash(jq:*)",
+      "Bash(yq:*)",
+      "Bash(bat:*)",
+      "Bash(batcat:*)",
+      "Bash(cat:*)",
+      "Bash(sg:*)",
+      "Bash(ast-grep:*)",
+      "Bash(mvn:*)",
+      "Bash(./mvnw:*)",
+      "Bash(java:*)",
+      "Bash(javac:*)",
+      "Bash(jps:*)",
       "Read(*)",
       "Write(*)",
       "Edit(*)"
@@ -20,8 +41,14 @@
       "Bash(rm *)",
       "Bash(rmdir *)",
       "Bash(del *)",
-      "Bash(drop *)"
+      "Bash(drop *)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./config/credentials.json)",
+      "Read(./build)",
+      "Bash(sudo:*)",
+      "Bash(>:*)"
     ]
-  },
-  "defaultMode": "dontAsk"
+  }
 }
