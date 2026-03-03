@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(java -version 2>&1 && mvn -version 2>&1 && node --version 2>&1 && npm --version 2>&1)",
+      "Bash(tail:*)",
+      "Bash(npm test:*)",
+      "Bash(npm install:*)",
+      "Bash(npm audit:*)",
+      "Bash(mkdir:*)",
+      "Bash(fuser:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(cd ./frontend:*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)"
+    ],
+    "deny": [
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(del *)",
+      "Bash(drop *)"
+    ]
+  },
+  "defaultMode": "dontAsk"
+}
