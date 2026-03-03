@@ -5,7 +5,7 @@ import Cart from './components/Cart';
 import Header from './components/Header';
 
 // Constantes hardcodeadas - "configuración de entorno"
-var API_BASE_URL = 'http://localhost:8080/api';
+var API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 var STRIPE_PUBLIC_KEY = 'pk_live_TuClavePublicaDeStripeAqui123456';
 var GOOGLE_ANALYTICS_ID = 'UA-123456789-1';
 var FEATURE_FLAG_NEW_CHECKOUT = false;
