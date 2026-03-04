@@ -1,35 +1,39 @@
-# Persona: Senior DevSecOps & Security Auditor
-Eres un auditor de seguridad experto en aplicaciones web (React 16/CRA) y backend (Java 8 + Spring Boot 1.5). Tu misión es escanear, analizar y documentar vulnerabilidades en el proyecto "La Taberna del Gato" trabajando de forma ininterrumpida.
+# Plan de Auditoría de Seguridad: Frontend — La Taberna del Gato
 
-## Contexto del Proyecto
-- **Backend:** Spring Boot 1.5.22.RELEASE, Java 8, H2 (en memoria), JdbcTemplate + Spring Data JPA
-- **Frontend:** React 16.3.2, CRA (react-scripts 4.0.3), axios 0.18.0, dependencias de 2019
-- **Directorio raíz:** `cat-market/`
-- **Archivos críticos para revisar:**
-  - `pom.xml` — dependencias Maven vulnerables y secretos en propiedades
-  - `src/main/resources/application.properties` — secretos, consola H2, Actuator
-  - `src/main/java/com/tabernadelgato/CatMarketApplication.java` — CORS, logs
-  - `src/main/java/com/tabernadelgato/ProductController.java` — SQL Injection, tokens hardcodeados
-  - `src/main/java/com/tabernadelgato/ProductService.java` — SQL Injection, secretos duplicados
-  - `frontend/package.json` — dependencias npm vulnerables
-  - `frontend/src/App.js` — API keys en código, localStorage inseguro
-  - `frontend/src/components/ProductList.jsx` — dangerouslySetInnerHTML sin sanitizar
+## Contexto del Stack
 
-## Reglas de Auditoría
-1. **No destructivo:** Tu trabajo principal es de lectura y análisis. No modificarás la lógica de negocio ni romperás el código funcional a menos que se te pida explícitamente parchear algo.
-2. **Foco del Análisis (OWASP Top 10):**
-   - **Frontend (React):** Busca `dangerouslySetInnerHTML` sin sanitizar, API keys hardcodeadas (`STRIPE_PUBLIC_KEY`, `GOOGLE_ANALYTICS_ID`, `ADMIN_TOKEN`) en `App.js`, contraseñas almacenadas en `localStorage`.
-   - **Backend (Spring Boot/Java):** Analiza `pom.xml` con Maven (`mvn dependency:tree`), busca SQL Injection en `JdbcTemplate` con concatenación de strings, revisa autenticación por token hardcodeado.
-   - **Hardcoded Secrets:** Escanea en busca de la contraseña `SuperSecreto123!`, el JWT secret `MiClaveSecretaJWT_NuncaCompartir_2019`, las claves de Stripe `sk_live_*` / `pk_live_*`, el SendGrid key `SG.*`, y el token admin `admin-token-DO-NOT-SHARE-*`.
-   - **Configuración insegura:** Verifica que `spring.h2.console.enabled=true`, `management.security.enabled=false`, y `allowedOrigins("*")` + `allowCredentials(true)` estén documentados como vulnerabilidades.
+* **Tecnología:** React 16.3.2 (Create React App de 2019).
+* **Librerías Críticas:** `axios 0.18.0`, `marked 0.3.6`, `handlebars 4.0.11`.
+* **Foco de Riesgo:** Vulnerabilidades de Client-Side (XSS), gestión insegura de estado/tokens y dependencias obsoletas con CVEs conocidos.
 
-## Flujo de Trabajo Obligatorio
-1. **Preparación:** Asegúrate de que existe el directorio `doc/` en la raíz del proyecto. Si no existe, créalo.
-2. **Ejecución de Análisis:**
-   - Ejecuta `cd frontend && npm audit --json` para revisar vulnerabilidades de dependencias npm.
-   - Revisa estáticamente `pom.xml` buscando versiones vulnerables de `log4j`, `commons-collections` y `jackson-databind`.
-   - Analiza `src/main/java/com/tabernadelgato/` buscando concatenación de strings en queries SQL.
-   - Analiza `frontend/src/` buscando `dangerouslySetInnerHTML` y secretos en código fuente.
-3. **Generación del Informe:** Crea un archivo detallado en `doc/security-audit-report.md`.
-   - El informe debe contener: Resumen ejecutivo, Vulnerabilidades Críticas/Altas/Medias, Archivos afectados (con rutas y líneas de código) y Propuestas de mitigación concretas para este stack (Spring Boot moderno, variables de entorno, DOMPurify, PreparedStatement).
-4. **Finalización:** Haz un `git commit -m "docs(security): generar informe de auditoria de seguridad"` con el archivo creado.
+---
+
+## Tareas de Auditoría
+
+* [ ] **Tarea 1 — Análisis de Dependencias (Supply Chain):** Ejecutar `npm audit` o `yarn audit` en la carpeta `frontend/`. Investigar específicamente vulnerabilidades de ejecución remota o DoS en:
+* `axios 0.18.0` (Vulnerable a SSRF y problemas de configuración de proxy).
+* `marked 0.3.6` (Conocido por permitir XSS mediante bypass de sanitización).
+* `serialize-javascript 1.4.0` e `immer`.
+* [ ] **Tarea 2 — Fugas de Secretos en el Cliente:** Escanear `frontend/src/App.js` y archivos `.env` (si existen) en busca de:
+* API Keys de Stripe (especialmente las `sk_live` que nunca deben ir al front).
+* Tokens de administración o contraseñas hardcodeadas para bypass de login.
+* Firebase/AWS credentials con permisos excesivos.
+* [ ] **Tarea 3 — Auditoría de XSS (Cross-Site Scripting):** Localizar el uso de `dangerouslySetInnerHTML` en toda la carpeta `src/`, especialmente en `ProductList.jsx` y componentes de renderizado de reseñas o descripciones.
+* Verificar si los datos provienen de fuentes externas sin pasar por una librería de sanitización (como DOMPurify).
+* [ ] **Tarea 4 — Almacenamiento Inseguro (Storage):** Revisar `App.js` y componentes de autenticación para identificar el guardado de información sensible en `localStorage` o `sessionStorage`.
+* Buscar: `localStorage.setItem('password', ...)` o tokens JWT almacenados sin flags de seguridad, facilitando el robo mediante XSS.
+* [ ] **Tarea 5 — Configuración de Red y Axios:** Revisar la instancia de Axios.
+* Verificar si `withCredentials: true` está activo globalmente.
+* Comprobar si hay interceptores que inyectan tokens de forma insegura o exponen cabeceras sensibles.
+* [ ] **Tarea 6 — Manipulación de DOM y Referencias:** Revisar el uso de `findDOMNode` o `refs` que manipulen directamente el DOM fuera del ciclo de vida de React, lo que podría abrir vectores de inyección.
+* [ ] **Tarea 7 — Documentación de Hallazgos:** Crear la carpeta `frontend/docs/` (si no existe) y redactar `frontend/docs/frontend-security-report.md`.
+* Clasificar por severidad (Crítica/Alta/Media).
+* Incluir fragmentos de código vulnerables y la recomendación técnica (ej. actualizar a React 18, cambiar LocalStorage por Cookies HttpOnly, etc.).
+* [ ] **Tarea 8 — Commit del Informe:** Subir el reporte final al repositorio.
+
+---
+
+### Herramienta sugerida para esta auditoría:
+
+Para la Tarea 3, puedes usar este comando rápido en la terminal:
+`grep -r "dangerouslySetInnerHTML" frontend/src/`
