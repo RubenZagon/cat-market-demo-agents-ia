@@ -124,16 +124,20 @@ public class ProductController {
         try {
             // Query directa sin preparar, aunque aquí el id es Long (menos riesgo)
             // pero el patrón es inconsistente con el endpoint de búsqueda
-            Map<String, Object> product = jdbcTemplate.queryForMap(
+            Map<String, Object> product = normalizeKeys(jdbcTemplate.queryForMap(
                     "SELECT * FROM products WHERE id = " + id
-            );
+            ));
 
             // Lógica de "producto relacionados" mezclada aquí
             String category = (String) product.get("category");
             String relatedQuery = "SELECT id, name, price FROM products WHERE category = '"
                     + category + "' AND id != " + id + " LIMIT 4"; // otra inyección potencial
 
-            List<Map<String, Object>> related = jdbcTemplate.queryForList(relatedQuery);
+            List<Map<String, Object>> rawRelated = jdbcTemplate.queryForList(relatedQuery);
+            List<Map<String, Object>> related = new ArrayList<>();
+            for (Map<String, Object> r : rawRelated) {
+                related.add(normalizeKeys(r));
+            }
             product.put("relatedProducts", related);
 
             // Incrementar contador de visitas con otra query directa
@@ -196,6 +200,45 @@ public class ProductController {
 
         jdbcTemplate.execute("DELETE FROM products WHERE id = " + id);
         return ResponseEntity.ok("Eliminado");
+    }
+
+    // GET todas las reseñas - necesario para que el frontend cargue reviews al inicio
+    @GetMapping("/reviews")
+    public ResponseEntity getAllReviews() {
+        List<Map<String, Object>> reviews = jdbcTemplate.queryForList("SELECT * FROM reviews");
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map<String, Object> r : reviews) {
+            result.add(normalizeKeys(r));
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    // POST nueva reseña - necesario para el demo de XSS stored
+    @PostMapping("/products/{id}/reviews")
+    public ResponseEntity addReview(@PathVariable Long id,
+                                     @RequestBody Map<String, Object> reviewData) {
+        // Sin validación - cualquier HTML se guarda tal cual (vulnerabilidad XSS intencional)
+        String text = (String) reviewData.get("text");
+        int rating = Integer.parseInt(reviewData.getOrDefault("rating", 5).toString());
+
+        jdbcTemplate.update(
+                "INSERT INTO reviews (product_id, text, rating) VALUES (?, ?, ?)",
+                id, text, rating
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Reseña añadida");
+        return ResponseEntity.ok(response);
+    }
+
+    // Normaliza claves a minúsculas (H2 devuelve columnas en MAYÚSCULAS por defecto)
+    private Map<String, Object> normalizeKeys(Map<String, Object> map) {
+        Map<String, Object> result = new HashMap<>();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            result.put(entry.getKey().toLowerCase(), entry.getValue());
+        }
+        return result;
     }
 
 }

